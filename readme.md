@@ -4,7 +4,7 @@ livedoor Reader lite-like rss reader.
 
 ## how to use
 
-First, rename **config_example.yaml** to **config.yaml** and edit. Parameters are:
+First, copy **config_example.yaml** to **config.yaml** and edit. Parameters are:
 
   * **output_dir** - A directory to output generated static htmls.
   * **exclude_title_regexp** - When feed title matchs this regexp pattern, it isn't shown.
