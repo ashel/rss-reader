@@ -1,0 +1,8 @@
+---
+exclude_title_regexp: "^PR:"
+output_dir: ./htmls/
+feeds:
+  - name: Slashdot
+    url: http://rss.slashdot.org/Slashdot/slashdot
+  - name: Engadget
+    url: http://www.engadget.com/rss.xml

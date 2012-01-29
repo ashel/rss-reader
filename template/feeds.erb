@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="ja">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>rss-reader</title>
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta http-equiv="Content-Style-Type" content="text/css">
+	<link href="main.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+<h1>rss reader</h1>
+%	prev_feed_url = nil
+%	feeds.each do |feed|
+%		if prev_feed_url != feed['feed_url']
+<h2><%= feed['feed_title'] %></h2>
+%			prev_feed_url = feed['feed_url']
+%		end
+<div class='item'>
+<h3><a href='<%= feed['link'] %>' target='_blank'><%= feed['title'] %></a></h3>
+<div class='body'><%= feed['content'] %></div>
+<div class='d'><%= feed['update_date'] %></div>
+</div>
+%	end
+%	if is_last_page
+<div class="back"><a href="./index.html">Back To Index</a></div>
+%	else
+<div class="more"><a href="./<%= page_data[0] %>-<%= index + 1 %>.html">More</a></div>
+%	end
+</body>
+</html>
