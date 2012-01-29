@@ -13,6 +13,12 @@ First, rename **config_example.yaml** to **config.yaml** and edit. Parameters ar
 Next, run **update_all.rb** to generate static htmls and open index.html.
 Automate running update_all.rb with auto-exec like cron.
 
+## dependency
+
+This application needs these gems.
+
+  * sqlite3-ruby
+
 ## licence
 
 This application is distributed with [MIT license](http://www.opensource.org/licenses/mit-license.php).
