@@ -23,9 +23,24 @@ EOS
 		db.execute(sql)
 	end
 	
+	def create_lastmodified_table(db)
+		sql = <<EOS
+create table lastmodified (
+	id integer,
+	feed_url text,
+	date text,
+	primary key(id)
+);
+EOS
+		db.execute(sql)
+	end
+	
 	def update_db(config_path, db_path)
 		insert_sql = "insert into rss(feed_url, feed_title, content_date, update_date, title, link, content) values(?, ?, ?, ?, ?, ?, ?)"
 		select_sql = "select id from rss where link = ?"
+		select_lastmodified_sql = "select id, date from lastmodified where feed_url = ?"
+		update_lastmodified_sql = "update lastmodified set date = ? where id = ?"
+		insert_lastmodified_sql = "insert into lastmodified(feed_url, date) values(?, ?)"
 		
 		config = YAML.load(File.read(config_path))
 		exclude_title_regexp = Regexp.new(config["exclude_title_regexp"])
@@ -33,8 +48,10 @@ EOS
 		
 		is_rss_db_exist = File.exist?(db_path)
 		rss_db = SQLite3::Database.new(db_path)
+		rss_db.results_as_hash = true
 		unless is_rss_db_exist
 			create_rss_table(rss_db)
+			create_lastmodified_table(rss_db)
 		end
 		
 		now_datetime = DateTime.now.strftime("%Y-%m-%d %H:%M:%S")
@@ -42,12 +59,26 @@ EOS
 		feeds.each do |feed|
 			puts "update #{feed["url"]}"
 			str = nil
-	
+			
+			get_option = {'User-Agent' => "Ruby/#{RUBY_VERSION}"}
+			lastmodified_id = nil
+			rss_db.execute(select_lastmodified_sql, feed["url"]) do |row|
+				lastmodified_id = row['id']
+				get_option['If-Modified-Since'] = Time.parse(row['date']).httpdate
+			end
+			
 			begin
-				open(feed["url"]) do |file|
+				open(feed["url"], get_option) do |file|
 					str = file.read
+					if file.last_modified
+						if lastmodified_id
+							rss_db.execute(update_lastmodified_sql, [file.last_modified.strftime("%Y-%m-%d %H:%M:%S"), lastmodified_id])
+						else
+							rss_db.execute(insert_lastmodified_sql, [feed["url"], file.last_modified.strftime("%Y-%m-%d %H:%M:%S")])
+						end
+					end
 				end
-			rescue StandardError => e
+			rescue OpenURI::HTTPError => e
 				p e
 				next
 			end
