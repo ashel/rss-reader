@@ -104,9 +104,19 @@ EOS
 		end
 	end
 	
-	module_function :create_rss_table, :update_db
+	def delete_old_feeds_db(db_path)
+		rss_db = SQLite3::Database.new(db_path)
+		
+		threshold_date = DateTime.now - Rational(3)
+		
+		rss_db.execute("delete from rss where update_date < ?", threshold_date.strftime("%Y-%m-%d %H:%M:%S"))
+		rss_db.execute("vacuum rss")
+	end
+	
+	module_function :create_rss_table, :update_db, :delete_old_feeds_db
 end
 
 if __FILE__ == $0
 	RssReader.update_db("config.yaml", "rss.db")
+	RssReader.delete_old_feeds_db("rss.db")
 end
