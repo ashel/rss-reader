@@ -78,7 +78,7 @@ EOS
 						end
 					end
 				end
-			rescue OpenURI::HTTPError => e
+			rescue StandardError => e
 				p e
 				next
 			end
