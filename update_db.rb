@@ -78,7 +78,7 @@ EOS
 						end
 					end
 				end
-			rescue StandardError => e
+			rescue Timeout::Error, StandardError => e
 				p e
 				next
 			end
